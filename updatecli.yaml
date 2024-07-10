@@ -1,0 +1,193 @@
+sources:
+  cluster_autoscaler_source:
+    kind: helmchart
+    spec:
+      name: cluster-autoscaler
+      url: https://kubernetes.github.io/autoscaler
+
+  ingress_nginx_source:
+    kind: helmchart
+    spec:
+      name: ingress-nginx
+      url: https://kubernetes.github.io/ingress-nginx
+
+  metrics_server_source:
+    kind: helmchart
+    spec:
+      name: metrics-server
+      url: https://kubernetes-sigs.github.io/metrics-server
+
+  aws_efs_csi_driver_source:
+    kind: helmchart
+    spec:
+      name: aws-efs-csi-driver
+      url: https://kubernetes-sigs.github.io/aws-efs-csi-driver
+
+  aws_load_balancer_controller_source:
+    kind: helmchart
+    spec:
+      name: aws-load-balancer-controller
+      url: https://aws.github.io/eks-charts
+
+  cert_manager_source:
+    kind: helmchart
+    spec:
+      name: cert-manager
+      url: https://charts.jetstack.io
+
+  datadog_crds_source:
+    kind: helmchart
+    spec:
+      name: datadog-crds
+      url: https://helm.datadoghq.com
+
+  datadog_source:
+    kind: helmchart
+    spec:
+      name: datadog
+      url: https://helm.datadoghq.com
+
+conditions:
+  cluster_autoscaler_condition:
+    sourceID: cluster_autoscaler_source
+    kind: version
+    spec:
+      version: latest
+
+  ingress_nginx_condition:
+    sourceID: ingress_nginx_source
+    kind: version
+    spec:
+      version: latest
+
+  metrics_server_condition:
+    sourceID: metrics_server_source
+    kind: version
+    spec:
+      version: latest
+
+  aws_efs_csi_driver_condition:
+    sourceID: aws_efs_csi_driver_source
+    kind: version
+    spec:
+      version: latest
+
+  aws_load_balancer_controller_condition:
+    sourceID: aws_load_balancer_controller_source
+    kind: version
+    spec:
+      version: latest
+
+  cert_manager_condition:
+    sourceID: cert_manager_source
+    kind: version
+    spec:
+      version: latest
+
+  datadog_crds_condition:
+    sourceID: datadog_crds_source
+    kind: version
+    spec:
+      version: latest
+
+  datadog_condition:
+    sourceID: datadog_source
+    kind: version
+    spec:
+      version: latest
+
+targets:
+  update_cluster_autoscaler_version:
+    name: Update cluster-autoscaler version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "cluster-autoscaler" \{[^}]*default = ".*"'
+      replacePattern: '^variable "cluster-autoscaler" { default = "{{ source cluster_autoscaler_source }}" }'
+
+  update_ingress_nginx_version:
+    name: Update ingress-nginx version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "ingress-nginx" \{[^}]*default = ".*"'
+      replacePattern: '^variable "ingress-nginx" { default = "{{ source ingress_nginx_source }}" }'
+
+  update_metrics_server_version:
+    name: Update metrics-server version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "metrics-server" \{[^}]*default = ".*"'
+      replacePattern: '^variable "metrics-server" { default = "{{ source metrics_server_source }}" }'
+
+  update_aws_efs_csi_driver_version:
+    name: Update aws-efs-csi-driver version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "aws-efs-csi-driver" \{[^}]*default = ".*"'
+      replacePattern: '^variable "aws-efs-csi-driver" { default = "{{ source aws_efs_csi_driver_source }}" }'
+
+  update_aws_load_balancer_controller_version:
+    name: Update aws-load-balancer-controller version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "aws-load-balancer-controller" \{[^}]*default = ".*"'
+      replacePattern: '^variable "aws-load-balancer-controller" { default = "{{ source aws_load_balancer_controller_source }}" }'
+
+  update_cert_manager_version:
+    name: Update cert-manager version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "cert-manager" \{[^}]*default = ".*"'
+      replacePattern: '^variable "cert-manager" { default = "{{ source cert_manager_source }}" }'
+
+  update_datadog_crds_version:
+    name: Update datadog-crds version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "datadog-crds" \{[^}]*default = ".*"'
+      replacePattern: '^variable "datadog-crds" { default = "{{ source datadog_crds_source }}" }'
+
+  update_datadog_version:
+    name: Update datadog version in input.tf
+    kind: file
+    spec:
+      file: input.tf
+      matchPattern: '^variable "datadog" \{[^}]*default = ".*"'
+      replacePattern: '^variable "datadog" { default = "{{ source datadog_source }}" }'
+
+pipelines:
+  update_helm_chart_versions:
+    name: Update Helm chart versions in input.tf
+    sources:
+      - cluster_autoscaler_source
+      - ingress_nginx_source
+      - metrics_server_source
+      - aws_efs_csi_driver_source
+      - aws_load_balancer_controller_source
+      - cert_manager_source
+      - datadog_crds_source
+      - datadog_source
+    conditions:
+      - cluster_autoscaler_condition
+      - ingress_nginx_condition
+      - metrics_server_condition
+      - aws_efs_csi_driver_condition
+      - aws_load_balancer_controller_condition
+      - cert_manager_condition
+      - datadog_crds_condition
+      - datadog_condition
+    targets:
+      - update_cluster_autoscaler_version
+      - update_ingress_nginx_version
+      - update_metrics_server_version
+      - update_aws_efs_csi_driver_version
+      - update_aws_load_balancer_controller_version
+      - update_cert_manager_version
+      - update_datadog_crds_version
+      - update_datadog_version
